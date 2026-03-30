@@ -4,34 +4,34 @@ import { useCallback } from "react";
 import { useEditorStore } from "@/lib/store";
 
 export default function UploadZone() {
-  const { setVideoFile, videoUrl } = useEditorStore();
+  const { setMediaFile, videoUrl } = useEditorStore();
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith("video/")) {
-        setVideoFile(file);
+      if (file && (file.type.startsWith("video/") || file.type.startsWith("image/"))) {
+        setMediaFile(file);
       }
     },
-    [setVideoFile]
+    [setMediaFile]
   );
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) setVideoFile(file);
+      if (file) setMediaFile(file);
     },
-    [setVideoFile]
+    [setMediaFile]
   );
 
   if (videoUrl) {
     return (
       <label className="cursor-pointer text-[10px] tracking-wider uppercase text-aman-stone hover:text-aman-gold transition-colors">
-        Change Video
+        Change File
         <input
           type="file"
-          accept="video/*"
+          accept="video/*,image/*"
           className="hidden"
           onChange={handleChange}
         />
@@ -63,15 +63,15 @@ export default function UploadZone() {
         </div>
         <div className="text-center">
           <p className="text-sm tracking-[0.3em] uppercase font-light text-aman-cream/80">
-            Drop your video here
+            Drop your file here
           </p>
           <p className="text-[10px] tracking-wider text-aman-stone/50 mt-2 uppercase">
-            or click to browse
+            Video or Photo — Click to browse
           </p>
         </div>
         <input
           type="file"
-          accept="video/*"
+          accept="video/*,image/*"
           className="hidden"
           onChange={handleChange}
         />

@@ -1,6 +1,9 @@
 import { create } from "zustand";
 
 export type AspectRatio = "9:16" | "4:5" | "1:1";
+export type MediaType = "video" | "image";
+
+export type KenBurnsPreset = "zoom-in" | "zoom-out" | "pan-left" | "pan-right" | "pan-up" | "none";
 
 export interface TextOverlay {
   id: string;
@@ -82,6 +85,7 @@ export const AMAN_PRESETS: Record<string, FilterSettings> = {
 interface EditorState {
   videoFile: File | null;
   videoUrl: string | null;
+  mediaType: MediaType;
   aspectRatio: AspectRatio;
   filter: FilterSettings;
   textOverlays: TextOverlay[];
@@ -89,9 +93,13 @@ interface EditorState {
   isExporting: boolean;
   exportProgress: number;
   showEndCard: boolean;
+  kenBurns: KenBurnsPreset;
+  photoDuration: number;
 
-  setVideoFile: (file: File) => void;
+  setMediaFile: (file: File) => void;
   setAspectRatio: (ratio: AspectRatio) => void;
+  setKenBurns: (kb: KenBurnsPreset) => void;
+  setPhotoDuration: (d: number) => void;
   setFilter: (filter: Partial<FilterSettings>) => void;
   setPreset: (name: string) => void;
   addTextOverlay: () => void;
@@ -108,6 +116,7 @@ const defaultFilter = AMAN_PRESETS["Aman Classic"];
 export const useEditorStore = create<EditorState>((set) => ({
   videoFile: null,
   videoUrl: null,
+  mediaType: "video",
   aspectRatio: "9:16",
   filter: { ...defaultFilter },
   textOverlays: [],
@@ -115,11 +124,14 @@ export const useEditorStore = create<EditorState>((set) => ({
   isExporting: false,
   exportProgress: 0,
   showEndCard: true,
+  kenBurns: "zoom-in",
+  photoDuration: 5,
 
-  setVideoFile: (file) =>
+  setMediaFile: (file) =>
     set((state) => {
       if (state.videoUrl) URL.revokeObjectURL(state.videoUrl);
-      return { videoFile: file, videoUrl: URL.createObjectURL(file) };
+      const mediaType: MediaType = file.type.startsWith("image/") ? "image" : "video";
+      return { videoFile: file, videoUrl: URL.createObjectURL(file), mediaType };
     }),
 
   setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
@@ -163,6 +175,8 @@ export const useEditorStore = create<EditorState>((set) => ({
       textOverlays: state.textOverlays.filter((t) => t.id !== id),
     })),
 
+  setKenBurns: (kb) => set({ kenBurns: kb }),
+  setPhotoDuration: (d) => set({ photoDuration: d }),
   setIsExporting: (v) => set({ isExporting: v }),
   setExportProgress: (v) => set({ exportProgress: v }),
   setShowEndCard: (v) => set({ showEndCard: v }),
@@ -173,11 +187,14 @@ export const useEditorStore = create<EditorState>((set) => ({
       return {
         videoFile: null,
         videoUrl: null,
+        mediaType: "video" as MediaType,
         filter: { ...defaultFilter },
         textOverlays: [],
         activePreset: "Aman Classic",
         isExporting: false,
         exportProgress: 0,
+        kenBurns: "zoom-in" as KenBurnsPreset,
+        photoDuration: 5,
       };
     }),
 }));

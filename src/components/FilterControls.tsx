@@ -37,7 +37,7 @@ function Slider({
 }
 
 export default function FilterControls() {
-  const { filter, setFilter, activePreset, setPreset } = useEditorStore();
+  const { filter, setFilter, activePreset, setPreset, mediaType } = useEditorStore();
 
   return (
     <div className="space-y-6">
@@ -76,7 +76,9 @@ export default function FilterControls() {
           <Slider label="Brightness" value={filter.brightness} min={0.5} max={1.5} step={0.01} onChange={(v) => setFilter({ brightness: v })} />
           <Slider label="Film Grain" value={filter.grain} min={0} max={0.15} step={0.005} onChange={(v) => setFilter({ grain: v })} />
           <Slider label="Vignette" value={filter.vignette} min={0} max={1} step={0.01} onChange={(v) => setFilter({ vignette: v })} />
-          <Slider label="Speed" value={filter.speed} min={0.3} max={1} step={0.05} onChange={(v) => setFilter({ speed: v })} />
+          {mediaType === "video" && (
+            <Slider label="Speed" value={filter.speed} min={0.3} max={1} step={0.05} onChange={(v) => setFilter({ speed: v })} />
+          )}
         </div>
       </div>
     </div>
