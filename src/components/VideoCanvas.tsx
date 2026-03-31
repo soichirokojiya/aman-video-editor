@@ -418,7 +418,7 @@ export default function VideoCanvas() {
   const isDraggable = mediaType === "image";
 
   return (
-    <div className="relative flex items-center justify-center w-full h-full">
+    <div className="relative flex items-center justify-center w-full h-full overflow-hidden">
       <video
         ref={videoRef}
         className="hidden"
@@ -429,8 +429,8 @@ export default function VideoCanvas() {
       />
 
       <div
-        className={`relative max-h-full max-w-full ${isDraggable ? "cursor-grab active:cursor-grabbing" : ""}`}
-        style={containerStyle}
+        className={`relative h-full ${isDraggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+        style={{ ...containerStyle, maxHeight: "100%", maxWidth: "100%" }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -438,13 +438,12 @@ export default function VideoCanvas() {
       >
         <canvas
           ref={glCanvasRef}
-          className="w-full h-full object-contain rounded-sm"
+          className="h-full w-auto object-contain rounded-sm"
           style={containerStyle}
         />
         <canvas
           ref={textCanvasRef}
           className="absolute inset-0 w-full h-full pointer-events-none"
-          style={containerStyle}
         />
 
         {/* Drag hint for images */}
