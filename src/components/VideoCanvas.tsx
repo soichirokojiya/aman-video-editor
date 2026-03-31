@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { useEditorStore, TextOverlay, KenBurnsPreset } from "@/lib/store";
+import { useEditorStore, useActiveSlide, TextOverlay, KenBurnsPreset } from "@/lib/store";
 import { VERTEX_SHADER, FRAGMENT_SHADER } from "@/lib/shaders";
 import { FORMAT_PRESETS } from "@/lib/instagram-presets";
 
@@ -160,11 +160,18 @@ export default function VideoCanvas() {
     texture: WebGLTexture;
   } | null>(null);
 
-  const {
-    videoUrl, mediaType, filter, aspectRatio, textOverlays,
-    showEndCard, kenBurns, photoDuration,
-    cropOffsetX, cropOffsetY, setCropOffset,
-  } = useEditorStore();
+  const slide = useActiveSlide();
+  const { aspectRatio, setCropOffset } = useEditorStore();
+
+  const videoUrl = slide?.url ?? null;
+  const mediaType = slide?.mediaType ?? "image";
+  const filter = slide?.filter ?? { warmth: 0, contrast: 1, saturation: 1, shadowLift: 0, brightness: 1, grain: 0, vignette: 0, speed: 1 };
+  const textOverlays = slide?.textOverlays ?? [];
+  const showEndCard = slide?.showEndCard ?? false;
+  const kenBurns = slide?.kenBurns ?? "none";
+  const photoDuration = slide?.photoDuration ?? 5;
+  const cropOffsetX = slide?.cropOffsetX ?? 0;
+  const cropOffsetY = slide?.cropOffsetY ?? 0;
 
   const preset = FORMAT_PRESETS[aspectRatio];
 

@@ -5,13 +5,16 @@ import { useEditorStore } from "@/lib/store";
 import VideoCanvas from "@/components/VideoCanvas";
 import FilterControls from "@/components/FilterControls";
 import TextPanel from "@/components/TextPanel";
+import CaptionPanel from "@/components/CaptionPanel";
 import ExportPanel from "@/components/ExportPanel";
 import UploadZone from "@/components/UploadZone";
+import SlideStrip from "@/components/SlideStrip";
 
-type Tab = "style" | "text" | "export";
+type Tab = "style" | "text" | "caption" | "export";
 
 export default function Home() {
-  const { videoUrl, reset } = useEditorStore();
+  const { slides, reset } = useEditorStore();
+  const hasSlides = slides.length > 0;
   const [activeTab, setActiveTab] = useState<Tab>("style");
 
   return (
@@ -27,10 +30,8 @@ export default function Home() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          {videoUrl && (
-            <UploadZone />
-          )}
-          {videoUrl && (
+          {hasSlides && <UploadZone />}
+          {hasSlides && (
             <button
               onClick={reset}
               className="text-[10px] tracking-wider uppercase text-aman-stone/60 hover:text-red-500/60 transition-colors"
@@ -43,25 +44,28 @@ export default function Home() {
 
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Video preview area */}
-        <div className="flex-1 flex items-center justify-center p-6 bg-aman-linen">
-          {videoUrl ? (
-            <VideoCanvas />
-          ) : (
-            <UploadZone />
-          )}
+        {/* Video preview + slide strip */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex items-center justify-center p-6 bg-aman-linen">
+            {hasSlides ? (
+              <VideoCanvas />
+            ) : (
+              <UploadZone />
+            )}
+          </div>
+          <SlideStrip />
         </div>
 
         {/* Sidebar */}
-        {videoUrl && (
+        {hasSlides && (
           <aside className="w-72 border-l border-aman-clay/15 flex flex-col overflow-hidden bg-aman-cream">
             {/* Tabs */}
             <div className="flex border-b border-aman-clay/15">
-              {(["style", "text", "export"] as Tab[]).map((tab) => (
+              {(["style", "text", "caption", "export"] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`flex-1 py-3 text-[10px] tracking-[0.25em] uppercase transition-all duration-300 ${
+                  className={`flex-1 py-3 text-[10px] tracking-[0.15em] uppercase transition-all duration-300 ${
                     activeTab === tab
                       ? "text-aman-dark border-b border-aman-gold"
                       : "text-aman-stone/60 hover:text-aman-stone"
@@ -76,13 +80,14 @@ export default function Home() {
             <div className="flex-1 overflow-y-auto p-4">
               {activeTab === "style" && <FilterControls />}
               {activeTab === "text" && <TextPanel />}
+              {activeTab === "caption" && <CaptionPanel />}
               {activeTab === "export" && <ExportPanel />}
             </div>
 
             {/* Footer info */}
             <div className="px-4 py-3 border-t border-aman-clay/15">
               <p className="text-[9px] text-aman-stone/50 tracking-wider uppercase text-center">
-                Warm earth tones — Muted saturation — Meditative pace
+                {slides.length} slide{slides.length !== 1 ? "s" : ""} — Warm earth tones — Meditative pace
               </p>
             </div>
           </aside>

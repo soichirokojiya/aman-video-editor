@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditorStore, AMAN_PRESETS } from "@/lib/store";
+import { useEditorStore, useActiveSlide, AMAN_PRESETS } from "@/lib/store";
 
 function Slider({
   label,
@@ -37,7 +37,11 @@ function Slider({
 }
 
 export default function FilterControls() {
-  const { filter, setFilter, activePreset, setPreset, mediaType } = useEditorStore();
+  const slide = useActiveSlide();
+  const { setFilter, setPreset, applyFilterToAll, slides } = useEditorStore();
+  const filter = slide?.filter ?? { warmth: 0, contrast: 1, saturation: 1, shadowLift: 0, brightness: 1, grain: 0, vignette: 0, speed: 1 };
+  const activePreset = slide?.activePreset ?? "Aman Classic";
+  const mediaType = slide?.mediaType ?? "image";
 
   return (
     <div className="space-y-6">
@@ -62,6 +66,16 @@ export default function FilterControls() {
           ))}
         </div>
       </div>
+
+      {/* Apply to all */}
+      {slides.length > 1 && (
+        <button
+          onClick={applyFilterToAll}
+          className="w-full py-2 text-[10px] tracking-wider uppercase text-aman-stone hover:text-aman-dark border border-aman-clay/20 hover:border-aman-clay/40 rounded-sm transition-all"
+        >
+          Apply to all slides
+        </button>
+      )}
 
       {/* Manual controls */}
       <div>

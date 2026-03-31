@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useEditorStore, TEXT_TEMPLATES } from "@/lib/store";
+import { useEditorStore, useActiveSlide, TEXT_TEMPLATES } from "@/lib/store";
 
 export default function TextPanel() {
+  const slide = useActiveSlide();
   const {
-    textOverlays,
     addTextOverlay,
     updateTextOverlay,
     removeTextOverlay,
     applyTextTemplate,
   } = useEditorStore();
+  const textOverlays = slide?.textOverlays ?? [];
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
 
   const handleApplyTemplate = (name: string) => {

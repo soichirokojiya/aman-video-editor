@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditorStore } from "@/lib/store";
+import { useEditorStore, useActiveSlide } from "@/lib/store";
 import { FORMAT_PRESETS } from "@/lib/instagram-presets";
 import type { AspectRatio, KenBurnsPreset } from "@/lib/store";
 
@@ -50,25 +50,21 @@ const KB_GROUPS: { title: string; options: { value: KenBurnsPreset; label: strin
 ];
 
 export default function ExportPanel() {
+  const slide = useActiveSlide();
   const {
-    aspectRatio,
-    setAspectRatio,
-    showEndCard,
-    setShowEndCard,
-    isExporting,
-    exportProgress,
-    videoUrl,
-    mediaType,
-    kenBurns,
-    setKenBurns,
-    photoDuration,
-    setPhotoDuration,
-    setIsExporting,
-    setExportProgress,
+    aspectRatio, setAspectRatio,
+    isExporting, exportProgress, exportingSlideLabel,
+    slides, activeSlideIndex,
+    setKenBurns, setPhotoDuration, setShowEndCard,
+    setIsExporting, setExportProgress,
   } = useEditorStore();
 
-  // Export as static image (photo only)
-  const handleExportImage = () => {
+  const mediaType = slide?.mediaType ?? "image";
+  const kenBurns = slide?.kenBurns ?? "none";
+  const photoDuration = slide?.photoDuration ?? 5;
+  const showEndCard = slide?.showEndCard ?? false;
+
+  const handleExportCurrent = () => {
     const glCanvas = document.querySelector("canvas") as HTMLCanvasElement;
     const textCanvas = document.querySelectorAll("canvas")[1] as HTMLCanvasElement;
     if (!glCanvas) return;
@@ -89,141 +85,57 @@ export default function ExportPanel() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `aman-style-${aspectRatio.replace(":", "x")}-${Date.now()}.png`;
+      a.download = `aman-slide-${activeSlideIndex + 1}-${Date.now()}.png`;
       a.click();
       URL.revokeObjectURL(url);
     }, "image/png");
   };
 
-  // Export as video
-  const handleExportVideo = async () => {
-    if (!videoUrl) return;
-
+  const handleExportAll = async () => {
     setIsExporting(true);
-    setExportProgress(0);
+    const totalSlides = slides.length;
+    const { setActiveSlide } = useEditorStore.getState();
 
-    try {
+    for (let i = 0; i < totalSlides; i++) {
+      setActiveSlide(i);
+      setExportProgress(((i) / totalSlides) * 100, `Slide ${i + 1} of ${totalSlides}`);
+
+      // Wait for render to update
+      await new Promise((r) => setTimeout(r, 500));
+
       const glCanvas = document.querySelector("canvas") as HTMLCanvasElement;
       const textCanvas = document.querySelectorAll("canvas")[1] as HTMLCanvasElement;
-
-      if (!glCanvas) return;
+      if (!glCanvas) continue;
 
       const preset = FORMAT_PRESETS[aspectRatio];
-
       const outCanvas = document.createElement("canvas");
       outCanvas.width = preset.width;
       outCanvas.height = preset.height;
       const ctx = outCanvas.getContext("2d")!;
 
-      const stream = outCanvas.captureStream(30);
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: "video/webm;codecs=vp9",
-        videoBitsPerSecond: 8000000,
-      });
+      ctx.drawImage(glCanvas, 0, 0, preset.width, preset.height);
+      if (textCanvas) {
+        ctx.drawImage(textCanvas, 0, 0, preset.width, preset.height);
+      }
 
-      const chunks: Blob[] = [];
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "video/webm" });
+      const blob = await new Promise<Blob | null>((resolve) =>
+        outCanvas.toBlob(resolve, "image/png")
+      );
+      if (blob) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `aman-style-${aspectRatio.replace(":", "x")}-${Date.now()}.webm`;
+        a.download = `aman-carousel-${String(i + 1).padStart(2, "0")}.png`;
         a.click();
         URL.revokeObjectURL(url);
-        setIsExporting(false);
-        setExportProgress(100);
-      };
-
-      if (mediaType === "video") {
-        const video = document.querySelector("video") as HTMLVideoElement;
-        if (!video) return;
-
-        video.currentTime = 0;
-        await video.play();
-        mediaRecorder.start();
-
-        const duration = video.duration;
-        const startTime = performance.now();
-
-        const captureFrame = () => {
-          if (video.ended || video.paused) {
-            mediaRecorder.stop();
-            return;
-          }
-
-          ctx.drawImage(glCanvas, 0, 0, preset.width, preset.height);
-          if (textCanvas) {
-            ctx.drawImage(textCanvas, 0, 0, preset.width, preset.height);
-          }
-
-          if (showEndCard && video.currentTime > duration - 2) {
-            const endFade = Math.min(1, (video.currentTime - (duration - 2)) / 0.5);
-            ctx.globalAlpha = endFade * 0.6;
-            ctx.fillStyle = "#000";
-            ctx.fillRect(0, 0, preset.width, preset.height);
-            ctx.globalAlpha = endFade;
-            ctx.fillStyle = "#F5F0EB";
-            ctx.font = `200 ${preset.width * 0.04}px "Josefin Sans", sans-serif`;
-            ctx.textAlign = "center";
-            (ctx as CanvasRenderingContext2D).letterSpacing = `${preset.width * 0.02}px`;
-            ctx.fillText("A M A N", preset.width / 2, preset.height / 2);
-            ctx.globalAlpha = 1;
-          }
-
-          const elapsed = (performance.now() - startTime) / 1000;
-          setExportProgress(Math.min(95, (elapsed / duration) * 100));
-          requestAnimationFrame(captureFrame);
-        };
-
-        captureFrame();
-      } else {
-        // Image -> Video with Ken Burns
-        mediaRecorder.start();
-        const duration = photoDuration;
-        const startTime = performance.now();
-
-        const captureFrame = () => {
-          const elapsed = (performance.now() - startTime) / 1000;
-
-          if (elapsed >= duration) {
-            mediaRecorder.stop();
-            return;
-          }
-
-          ctx.drawImage(glCanvas, 0, 0, preset.width, preset.height);
-          if (textCanvas) {
-            ctx.drawImage(textCanvas, 0, 0, preset.width, preset.height);
-          }
-
-          // End card for photo video
-          if (showEndCard && elapsed > duration - 2) {
-            const endFade = Math.min(1, (elapsed - (duration - 2)) / 0.5);
-            ctx.globalAlpha = endFade * 0.6;
-            ctx.fillStyle = "#000";
-            ctx.fillRect(0, 0, preset.width, preset.height);
-            ctx.globalAlpha = endFade;
-            ctx.fillStyle = "#F5F0EB";
-            ctx.font = `200 ${preset.width * 0.04}px "Josefin Sans", sans-serif`;
-            ctx.textAlign = "center";
-            (ctx as CanvasRenderingContext2D).letterSpacing = `${preset.width * 0.02}px`;
-            ctx.fillText("A M A N", preset.width / 2, preset.height / 2);
-            ctx.globalAlpha = 1;
-          }
-
-          setExportProgress(Math.min(95, (elapsed / duration) * 100));
-          requestAnimationFrame(captureFrame);
-        };
-
-        captureFrame();
       }
-    } catch (err) {
-      console.error("Export failed:", err);
-      setIsExporting(false);
+
+      // Small delay between downloads
+      await new Promise((r) => setTimeout(r, 300));
     }
+
+    setExportProgress(100, "Done");
+    setIsExporting(false);
   };
 
   return (
@@ -324,27 +236,23 @@ export default function ExportPanel() {
 
       {/* Export buttons */}
       <div className="space-y-2">
-        {mediaType === "image" && (
-          <button
-            onClick={handleExportImage}
-            disabled={!videoUrl || isExporting}
-            className="w-full py-3 text-xs tracking-[0.3em] uppercase font-light border border-aman-gold/40 text-aman-dark hover:bg-aman-gold/15 transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
-          >
-            Export as Image
-          </button>
-        )}
-
         <button
-          onClick={handleExportVideo}
-          disabled={!videoUrl || isExporting}
+          onClick={handleExportCurrent}
+          disabled={!slide || isExporting}
           className="w-full py-3 text-xs tracking-[0.3em] uppercase font-light border border-aman-gold/40 text-aman-dark hover:bg-aman-gold/15 transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
         >
-          {isExporting
-            ? "Exporting..."
-            : mediaType === "image"
-            ? "Export as Video (Ken Burns)"
-            : "Export Video"}
+          Export Current Slide
         </button>
+
+        {slides.length > 1 && (
+          <button
+            onClick={handleExportAll}
+            disabled={isExporting}
+            className="w-full py-3 text-xs tracking-[0.3em] uppercase font-light border border-aman-gold/40 text-aman-dark hover:bg-aman-gold/15 transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
+          >
+            Export All Slides ({slides.length})
+          </button>
+        )}
       </div>
 
       {/* Progress */}
@@ -357,7 +265,7 @@ export default function ExportPanel() {
             />
           </div>
           <p className="text-[10px] text-aman-stone text-center tracking-wider">
-            {exportProgress.toFixed(0)}%
+            {exportingSlideLabel || `${exportProgress.toFixed(0)}%`}
           </p>
         </div>
       )}
