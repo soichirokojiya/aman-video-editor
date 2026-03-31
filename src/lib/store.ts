@@ -149,6 +149,182 @@ export const AMAN_PRESETS: Record<string, FilterSettings> = {
   },
 };
 
+export interface TextTemplate {
+  name: string;
+  description: string;
+  overlays: Omit<TextOverlay, "id">[];
+}
+
+export const TEXT_TEMPLATES: TextTemplate[] = [
+  {
+    name: "Property Name",
+    description: "Center — Large brand name",
+    overlays: [
+      {
+        text: "AMAN TOKYO",
+        x: 50, y: 50,
+        fontSize: 36,
+        fontFamily: "Josefin Sans",
+        fontWeight: 200,
+        letterSpacing: 20,
+        color: "#F5F0EB",
+        opacity: 0.95,
+      },
+    ],
+  },
+  {
+    name: "Location + Tagline",
+    description: "Name top, tagline bottom",
+    overlays: [
+      {
+        text: "AMANPURI",
+        x: 50, y: 15,
+        fontSize: 28,
+        fontFamily: "Josefin Sans",
+        fontWeight: 200,
+        letterSpacing: 18,
+        color: "#F5F0EB",
+        opacity: 0.9,
+      },
+      {
+        text: "Where the spirit finds peace",
+        x: 50, y: 85,
+        fontSize: 14,
+        fontFamily: "Cormorant Garamond",
+        fontWeight: 300,
+        letterSpacing: 4,
+        color: "#F5F0EB",
+        opacity: 0.75,
+      },
+    ],
+  },
+  {
+    name: "Destination",
+    description: "Country + property centered",
+    overlays: [
+      {
+        text: "JAPAN",
+        x: 50, y: 42,
+        fontSize: 12,
+        fontFamily: "Josefin Sans",
+        fontWeight: 300,
+        letterSpacing: 14,
+        color: "#F5F0EB",
+        opacity: 0.6,
+      },
+      {
+        text: "AMAN KYOTO",
+        x: 50, y: 50,
+        fontSize: 32,
+        fontFamily: "Josefin Sans",
+        fontWeight: 200,
+        letterSpacing: 16,
+        color: "#F5F0EB",
+        opacity: 0.95,
+      },
+      {
+        text: "A garden of hidden treasures",
+        x: 50, y: 58,
+        fontSize: 12,
+        fontFamily: "Cormorant Garamond",
+        fontWeight: 300,
+        letterSpacing: 3,
+        color: "#F5F0EB",
+        opacity: 0.65,
+      },
+    ],
+  },
+  {
+    name: "Quote",
+    description: "Poetic quote centered",
+    overlays: [
+      {
+        text: "Peace is found in stillness",
+        x: 50, y: 50,
+        fontSize: 22,
+        fontFamily: "Cormorant Garamond",
+        fontWeight: 300,
+        letterSpacing: 3,
+        color: "#F5F0EB",
+        opacity: 0.85,
+      },
+    ],
+  },
+  {
+    name: "Bottom Bar",
+    description: "Subtle text at bottom",
+    overlays: [
+      {
+        text: "AMAN",
+        x: 50, y: 92,
+        fontSize: 14,
+        fontFamily: "Josefin Sans",
+        fontWeight: 200,
+        letterSpacing: 20,
+        color: "#F5F0EB",
+        opacity: 0.5,
+      },
+    ],
+  },
+  {
+    name: "Season / Event",
+    description: "Season label + place name",
+    overlays: [
+      {
+        text: "SPRING 2026",
+        x: 50, y: 40,
+        fontSize: 10,
+        fontFamily: "Josefin Sans",
+        fontWeight: 300,
+        letterSpacing: 12,
+        color: "#F5F0EB",
+        opacity: 0.55,
+      },
+      {
+        text: "AMAN VENICE",
+        x: 50, y: 48,
+        fontSize: 30,
+        fontFamily: "Josefin Sans",
+        fontWeight: 200,
+        letterSpacing: 16,
+        color: "#F5F0EB",
+        opacity: 0.95,
+      },
+      {
+        text: "Experience the extraordinary",
+        x: 50, y: 56,
+        fontSize: 13,
+        fontFamily: "Cormorant Garamond",
+        fontWeight: 300,
+        letterSpacing: 3,
+        color: "#F5F0EB",
+        opacity: 0.65,
+      },
+    ],
+  },
+  {
+    name: "Minimal Logo",
+    description: "Small AMAN watermark center",
+    overlays: [
+      {
+        text: "AMAN",
+        x: 50, y: 50,
+        fontSize: 18,
+        fontFamily: "Josefin Sans",
+        fontWeight: 200,
+        letterSpacing: 24,
+        color: "#F5F0EB",
+        opacity: 0.4,
+      },
+    ],
+  },
+  {
+    name: "No Text",
+    description: "Clear all text overlays",
+    overlays: [],
+  },
+];
+
 interface EditorState {
   videoFile: File | null;
   videoUrl: string | null;
@@ -170,6 +346,8 @@ interface EditorState {
   setFilter: (filter: Partial<FilterSettings>) => void;
   setPreset: (name: string) => void;
   addTextOverlay: () => void;
+  setTextOverlays: (overlays: TextOverlay[]) => void;
+  applyTextTemplate: (template: TextTemplate) => void;
   updateTextOverlay: (id: string, update: Partial<TextOverlay>) => void;
   removeTextOverlay: (id: string) => void;
   setIsExporting: (v: boolean) => void;
@@ -229,6 +407,16 @@ export const useEditorStore = create<EditorState>((set) => ({
         },
       ],
     })),
+
+  setTextOverlays: (overlays) => set({ textOverlays: overlays }),
+
+  applyTextTemplate: (template) =>
+    set({
+      textOverlays: template.overlays.map((o) => ({
+        ...o,
+        id: crypto.randomUUID(),
+      })),
+    }),
 
   updateTextOverlay: (id, update) =>
     set((state) => ({
