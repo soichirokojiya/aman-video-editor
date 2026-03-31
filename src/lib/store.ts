@@ -369,7 +369,7 @@ export const useEditorStore = create<EditorState>((set) => ({
   isExporting: false,
   exportProgress: 0,
   showEndCard: true,
-  kenBurns: "zoom-in",
+  kenBurns: "none",
   photoDuration: 5,
 
   setMediaFile: (file) =>
@@ -448,7 +448,7 @@ export const useEditorStore = create<EditorState>((set) => ({
         activePreset: "Aman Classic",
         isExporting: false,
         exportProgress: 0,
-        kenBurns: "zoom-in" as KenBurnsPreset,
+        kenBurns: "none" as KenBurnsPreset,
         photoDuration: 5,
       };
     }),
