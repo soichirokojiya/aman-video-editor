@@ -36,7 +36,9 @@ function getKenBurnsTransform(
   imgW: number,
   imgH: number,
   canvasW: number,
-  canvasH: number
+  canvasH: number,
+  cropOx: number,
+  cropOy: number
 ) {
   const canvasAspect = canvasW / canvasH;
   const imgAspect = imgW / imgH;
@@ -120,11 +122,9 @@ function getKenBurnsTransform(
       offsetY = ease * (imgH - baseH * scale) * 0.1;
       break;
     case "slow-push":
-      // Very slow gentle zoom, cinematic feel
       scale = 1.0 + ease * 0.08;
       break;
     case "pull-reveal":
-      // Start zoomed in, slowly reveal the full scene
       scale = 1.25 - ease * 0.25;
       break;
     case "none":
@@ -135,8 +135,12 @@ function getKenBurnsTransform(
 
   const sw = baseW / scale;
   const sh = baseH / scale;
-  const sx = (imgW - sw) / 2 + offsetX;
-  const sy = (imgH - sh) / 2 + offsetY;
+
+  // Apply crop offset: shift from center based on available slack
+  const maxSlackX = imgW - sw;
+  const maxSlackY = imgH - sh;
+  const sx = maxSlackX / 2 + cropOx * (maxSlackX / 2) + offsetX;
+  const sy = maxSlackY / 2 + cropOy * (maxSlackY / 2) + offsetY;
 
   return { sx, sy, sw, sh };
 }
@@ -149,16 +153,58 @@ export default function VideoCanvas() {
   const sourceCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
+  const dragRef = useRef<{ startX: number; startY: number; startOx: number; startOy: number } | null>(null);
   const glRef = useRef<{
     gl: WebGLRenderingContext;
     program: WebGLProgram;
     texture: WebGLTexture;
   } | null>(null);
 
-  const { videoUrl, mediaType, filter, aspectRatio, textOverlays, showEndCard, kenBurns, photoDuration } =
-    useEditorStore();
+  const {
+    videoUrl, mediaType, filter, aspectRatio, textOverlays,
+    showEndCard, kenBurns, photoDuration,
+    cropOffsetX, cropOffsetY, setCropOffset,
+  } = useEditorStore();
 
   const preset = FORMAT_PRESETS[aspectRatio];
+
+  // Drag-to-pan handlers for image mode
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (mediaType !== "image") return;
+      dragRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        startOx: cropOffsetX,
+        startOy: cropOffsetY,
+      };
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [mediaType, cropOffsetX, cropOffsetY]
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragRef.current) return;
+      const container = glCanvasRef.current?.parentElement;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      const dx = (e.clientX - dragRef.current.startX) / rect.width;
+      const dy = (e.clientY - dragRef.current.startY) / rect.height;
+
+      // Invert: drag right → image moves left → offset decreases
+      setCropOffset(
+        dragRef.current.startOx - dx * 2,
+        dragRef.current.startOy - dy * 2
+      );
+    },
+    [setCropOffset]
+  );
+
+  const handlePointerUp = useCallback(() => {
+    dragRef.current = null;
+  }, []);
 
   // Initialize WebGL
   const initGL = useCallback(() => {
@@ -257,7 +303,6 @@ export default function VideoCanvas() {
     img.crossOrigin = "anonymous";
     img.onload = () => {
       imageRef.current = img;
-      // Create a hidden canvas for Ken Burns cropping
       if (!sourceCanvasRef.current) {
         sourceCanvasRef.current = document.createElement("canvas");
       }
@@ -325,7 +370,9 @@ export default function VideoCanvas() {
           img.naturalWidth,
           img.naturalHeight,
           w,
-          h
+          h,
+          cropOffsetX,
+          cropOffsetY
         );
 
         sCtx.clearRect(0, 0, w, h);
@@ -355,11 +402,13 @@ export default function VideoCanvas() {
 
     render();
     return () => cancelAnimationFrame(animFrameRef.current);
-  }, [filter, textOverlays, preset, drawText, mediaType, kenBurns, photoDuration]);
+  }, [filter, textOverlays, preset, drawText, mediaType, kenBurns, photoDuration, cropOffsetX, cropOffsetY]);
 
   const containerStyle = {
     aspectRatio: `${preset.width} / ${preset.height}`,
   };
+
+  const isDraggable = mediaType === "image";
 
   return (
     <div className="relative flex items-center justify-center w-full h-full">
@@ -372,7 +421,14 @@ export default function VideoCanvas() {
         crossOrigin="anonymous"
       />
 
-      <div className="relative max-h-full max-w-full" style={containerStyle}>
+      <div
+        className={`relative max-h-full max-w-full ${isDraggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+        style={containerStyle}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
         <canvas
           ref={glCanvasRef}
           className="w-full h-full object-contain rounded-sm"
@@ -383,6 +439,15 @@ export default function VideoCanvas() {
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={containerStyle}
         />
+
+        {/* Drag hint for images */}
+        {isDraggable && (cropOffsetX === 0 && cropOffsetY === 0) && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none">
+            <p className="text-[10px] text-white/60 bg-black/30 px-3 py-1 rounded-full tracking-wider uppercase backdrop-blur-sm">
+              Drag to reposition
+            </p>
+          </div>
+        )}
 
         {showEndCard && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 hover:opacity-100 transition-opacity duration-500">

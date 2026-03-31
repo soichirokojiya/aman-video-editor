@@ -338,11 +338,14 @@ interface EditorState {
   showEndCard: boolean;
   kenBurns: KenBurnsPreset;
   photoDuration: number;
+  cropOffsetX: number; // -1 to 1 (0 = center)
+  cropOffsetY: number;
 
   setMediaFile: (file: File) => void;
   setAspectRatio: (ratio: AspectRatio) => void;
   setKenBurns: (kb: KenBurnsPreset) => void;
   setPhotoDuration: (d: number) => void;
+  setCropOffset: (x: number, y: number) => void;
   setFilter: (filter: Partial<FilterSettings>) => void;
   setPreset: (name: string) => void;
   addTextOverlay: () => void;
@@ -371,12 +374,14 @@ export const useEditorStore = create<EditorState>((set) => ({
   showEndCard: true,
   kenBurns: "none",
   photoDuration: 5,
+  cropOffsetX: 0,
+  cropOffsetY: 0,
 
   setMediaFile: (file) =>
     set((state) => {
       if (state.videoUrl) URL.revokeObjectURL(state.videoUrl);
       const mediaType: MediaType = file.type.startsWith("image/") ? "image" : "video";
-      return { videoFile: file, videoUrl: URL.createObjectURL(file), mediaType };
+      return { videoFile: file, videoUrl: URL.createObjectURL(file), mediaType, cropOffsetX: 0, cropOffsetY: 0 };
     }),
 
   setAspectRatio: (ratio) => set({ aspectRatio: ratio }),
@@ -430,6 +435,7 @@ export const useEditorStore = create<EditorState>((set) => ({
       textOverlays: state.textOverlays.filter((t) => t.id !== id),
     })),
 
+  setCropOffset: (x, y) => set({ cropOffsetX: Math.max(-1, Math.min(1, x)), cropOffsetY: Math.max(-1, Math.min(1, y)) }),
   setKenBurns: (kb) => set({ kenBurns: kb }),
   setPhotoDuration: (d) => set({ photoDuration: d }),
   setIsExporting: (v) => set({ isExporting: v }),
@@ -450,6 +456,8 @@ export const useEditorStore = create<EditorState>((set) => ({
         exportProgress: 0,
         kenBurns: "none" as KenBurnsPreset,
         photoDuration: 5,
+        cropOffsetX: 0,
+        cropOffsetY: 0,
       };
     }),
 }));
