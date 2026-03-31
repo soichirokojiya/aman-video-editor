@@ -29,13 +29,13 @@ export default function TextPanel() {
       {textOverlays.map((t) => (
         <div
           key={t.id}
-          className="border border-white/5 rounded-sm p-3 space-y-3 bg-white/[0.02]"
+          className="border border-aman-clay/15 rounded-sm p-3 space-y-3 bg-aman-linen/50"
         >
           <input
             type="text"
             value={t.text}
             onChange={(e) => updateTextOverlay(t.id, { text: e.target.value })}
-            className="w-full bg-transparent border-b border-aman-stone/20 text-aman-cream text-sm px-0 py-1 focus:outline-none focus:border-aman-gold/50 tracking-wider uppercase"
+            className="w-full bg-transparent border-b border-aman-stone/20 text-aman-dark text-sm px-0 py-1 focus:outline-none focus:border-aman-gold/50 tracking-wider uppercase"
             placeholder="Text..."
           />
 
@@ -51,7 +51,7 @@ export default function TextPanel() {
                     fontFamily: e.target.value as "Cormorant Garamond" | "Josefin Sans",
                   })
                 }
-                className="w-full bg-transparent border border-white/10 text-aman-cream text-xs p-1.5 rounded-sm mt-1"
+                className="w-full bg-transparent border border-aman-clay/20 text-aman-dark text-xs p-1.5 rounded-sm mt-1"
               >
                 <option value="Josefin Sans">Josefin Sans</option>
                 <option value="Cormorant Garamond">Cormorant Garamond</option>

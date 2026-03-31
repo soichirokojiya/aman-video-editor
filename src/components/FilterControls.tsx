@@ -21,7 +21,7 @@ function Slider({
     <div className="flex flex-col gap-1">
       <div className="flex justify-between text-xs">
         <span className="text-aman-stone tracking-wider uppercase">{label}</span>
-        <span className="text-aman-sand tabular-nums">{value.toFixed(2)}</span>
+        <span className="text-aman-gold tabular-nums">{value.toFixed(2)}</span>
       </div>
       <input
         type="range"
@@ -53,8 +53,8 @@ export default function FilterControls() {
               onClick={() => setPreset(name)}
               className={`text-left px-3 py-2 text-xs tracking-wider uppercase transition-all duration-300 rounded-sm ${
                 activePreset === name
-                  ? "bg-aman-gold/20 text-aman-cream border border-aman-gold/30"
-                  : "text-aman-stone hover:text-aman-cream hover:bg-white/5 border border-transparent"
+                  ? "bg-aman-gold/20 text-aman-dark border border-aman-gold/40"
+                  : "text-aman-stone hover:text-aman-dark hover:bg-aman-warm-bg border border-transparent"
               }`}
             >
               {name}

@@ -27,7 +27,7 @@ export default function UploadZone() {
 
   if (videoUrl) {
     return (
-      <label className="cursor-pointer text-[10px] tracking-wider uppercase text-aman-stone hover:text-aman-gold transition-colors">
+      <label className="cursor-pointer text-[10px] tracking-wider uppercase text-aman-stone hover:text-aman-dark transition-colors">
         Change File
         <input
           type="file"
@@ -43,10 +43,10 @@ export default function UploadZone() {
     <div
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
-      className="flex-1 flex flex-col items-center justify-center border border-dashed border-aman-stone/20 rounded-sm hover:border-aman-gold/30 transition-colors duration-500 cursor-pointer p-8"
+      className="flex-1 flex flex-col items-center justify-center border border-dashed border-aman-clay/25 rounded-sm hover:border-aman-gold/50 transition-colors duration-500 cursor-pointer p-8"
     >
       <label className="cursor-pointer flex flex-col items-center gap-4">
-        <div className="w-20 h-20 border border-aman-stone/20 rounded-full flex items-center justify-center">
+        <div className="w-20 h-20 border border-aman-clay/20 rounded-full flex items-center justify-center">
           <svg
             className="w-8 h-8 text-aman-stone/40"
             fill="none"
@@ -62,10 +62,10 @@ export default function UploadZone() {
           </svg>
         </div>
         <div className="text-center">
-          <p className="text-sm tracking-[0.3em] uppercase font-light text-aman-cream/80">
+          <p className="text-sm tracking-[0.3em] uppercase font-light text-aman-dark/80">
             Drop your file here
           </p>
-          <p className="text-[10px] tracking-wider text-aman-stone/50 mt-2 uppercase">
+          <p className="text-[10px] tracking-wider text-aman-stone/60 mt-2 uppercase">
             Video or Photo — Click to browse
           </p>
         </div>

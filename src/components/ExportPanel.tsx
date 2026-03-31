@@ -4,13 +4,49 @@ import { useEditorStore } from "@/lib/store";
 import { FORMAT_PRESETS } from "@/lib/instagram-presets";
 import type { AspectRatio, KenBurnsPreset } from "@/lib/store";
 
-const KB_OPTIONS: { value: KenBurnsPreset; label: string }[] = [
-  { value: "zoom-in", label: "Zoom In" },
-  { value: "zoom-out", label: "Zoom Out" },
-  { value: "pan-left", label: "Pan Left" },
-  { value: "pan-right", label: "Pan Right" },
-  { value: "pan-up", label: "Pan Up" },
-  { value: "none", label: "None (Static)" },
+const KB_GROUPS: { title: string; options: { value: KenBurnsPreset; label: string }[] }[] = [
+  {
+    title: "Basic",
+    options: [
+      { value: "zoom-in", label: "Zoom In" },
+      { value: "zoom-out", label: "Zoom Out" },
+      { value: "slow-push", label: "Slow Push" },
+      { value: "pull-reveal", label: "Pull Reveal" },
+    ],
+  },
+  {
+    title: "Pan",
+    options: [
+      { value: "pan-left", label: "Left" },
+      { value: "pan-right", label: "Right" },
+      { value: "pan-up", label: "Up" },
+      { value: "pan-down", label: "Down" },
+    ],
+  },
+  {
+    title: "Diagonal Drift",
+    options: [
+      { value: "drift-diagonal-tl", label: "Top Left" },
+      { value: "drift-diagonal-tr", label: "Top Right" },
+      { value: "drift-diagonal-bl", label: "Bottom Left" },
+      { value: "drift-diagonal-br", label: "Bottom Right" },
+    ],
+  },
+  {
+    title: "Combo",
+    options: [
+      { value: "zoom-in-pan-left", label: "Zoom + Left" },
+      { value: "zoom-in-pan-right", label: "Zoom + Right" },
+      { value: "zoom-out-pan-up", label: "Out + Up" },
+      { value: "zoom-out-drift", label: "Out + Drift" },
+    ],
+  },
+  {
+    title: "",
+    options: [
+      { value: "none", label: "None (Static)" },
+    ],
+  },
 ];
 
 export default function ExportPanel() {
@@ -206,8 +242,8 @@ export default function ExportPanel() {
                 onClick={() => setAspectRatio(ratio)}
                 className={`w-full text-left px-3 py-2 text-xs tracking-wider transition-all duration-300 rounded-sm flex justify-between items-center ${
                   aspectRatio === ratio
-                    ? "bg-aman-gold/20 text-aman-cream border border-aman-gold/30"
-                    : "text-aman-stone hover:text-aman-cream hover:bg-white/5 border border-transparent"
+                    ? "bg-aman-gold/20 text-aman-dark border border-aman-gold/40"
+                    : "text-aman-stone hover:text-aman-dark hover:bg-aman-warm-bg border border-transparent"
                 }`}
               >
                 <span className="uppercase">
@@ -226,28 +262,35 @@ export default function ExportPanel() {
       {mediaType === "image" && (
         <div>
           <h3 className="text-xs tracking-[0.3em] uppercase text-aman-stone mb-3">
-            Ken Burns Effect
+            Motion Effect
           </h3>
-          <div className="grid grid-cols-2 gap-1.5">
-            {KB_OPTIONS.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => setKenBurns(opt.value)}
-                className={`px-2 py-1.5 text-[10px] tracking-wider uppercase transition-all duration-300 rounded-sm ${
-                  kenBurns === opt.value
-                    ? "bg-aman-gold/20 text-aman-cream border border-aman-gold/30"
-                    : "text-aman-stone hover:text-aman-cream hover:bg-white/5 border border-transparent"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
+          {KB_GROUPS.map((group) => (
+            <div key={group.title || "static"} className="mb-2">
+              {group.title && (
+                <p className="text-[9px] tracking-wider uppercase text-aman-clay mb-1">{group.title}</p>
+              )}
+              <div className="grid grid-cols-2 gap-1">
+                {group.options.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setKenBurns(opt.value)}
+                    className={`px-2 py-1.5 text-[10px] tracking-wider uppercase transition-all duration-300 rounded-sm ${
+                      kenBurns === opt.value
+                        ? "bg-aman-gold/20 text-aman-dark border border-aman-gold/40"
+                        : "text-aman-stone hover:text-aman-dark hover:bg-aman-warm-bg border border-transparent"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
 
           <div className="mt-3">
             <div className="flex justify-between text-xs mb-1">
               <span className="text-aman-stone tracking-wider uppercase">Duration</span>
-              <span className="text-aman-sand tabular-nums">{photoDuration}s</span>
+              <span className="text-aman-gold tabular-nums">{photoDuration}s</span>
             </div>
             <input
               type="range"
@@ -268,11 +311,11 @@ export default function ExportPanel() {
         <button
           onClick={() => setShowEndCard(!showEndCard)}
           className={`w-10 h-5 rounded-full transition-colors duration-300 relative ${
-            showEndCard ? "bg-aman-gold/40" : "bg-white/10"
+            showEndCard ? "bg-aman-gold/50" : "bg-aman-warm-bg"
           }`}
         >
           <div
-            className={`w-4 h-4 rounded-full bg-aman-cream absolute top-0.5 transition-transform duration-300 ${
+            className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform duration-300 shadow-sm ${
               showEndCard ? "translate-x-5" : "translate-x-0.5"
             }`}
           />
@@ -285,7 +328,7 @@ export default function ExportPanel() {
           <button
             onClick={handleExportImage}
             disabled={!videoUrl || isExporting}
-            className="w-full py-3 text-xs tracking-[0.3em] uppercase font-light border border-aman-gold/30 text-aman-cream hover:bg-aman-gold/10 transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
+            className="w-full py-3 text-xs tracking-[0.3em] uppercase font-light border border-aman-gold/40 text-aman-dark hover:bg-aman-gold/15 transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
           >
             Export as Image
           </button>
@@ -294,7 +337,7 @@ export default function ExportPanel() {
         <button
           onClick={handleExportVideo}
           disabled={!videoUrl || isExporting}
-          className="w-full py-3 text-xs tracking-[0.3em] uppercase font-light border border-aman-gold/30 text-aman-cream hover:bg-aman-gold/10 transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
+          className="w-full py-3 text-xs tracking-[0.3em] uppercase font-light border border-aman-gold/40 text-aman-dark hover:bg-aman-gold/15 transition-all duration-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-sm"
         >
           {isExporting
             ? "Exporting..."
@@ -307,9 +350,9 @@ export default function ExportPanel() {
       {/* Progress */}
       {isExporting && (
         <div className="space-y-2">
-          <div className="h-px bg-white/10 rounded-full overflow-hidden">
+          <div className="h-px bg-aman-warm-bg rounded-full overflow-hidden">
             <div
-              className="h-full bg-aman-gold/60 transition-all duration-300"
+              className="h-full bg-aman-gold transition-all duration-300"
               style={{ width: `${exportProgress}%` }}
             />
           </div>

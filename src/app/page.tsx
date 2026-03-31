@@ -15,14 +15,14 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>("style");
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-[#0a0a0a]">
+    <div className="flex flex-col h-screen overflow-hidden bg-aman-cream">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-aman-clay/15">
         <div className="flex items-center gap-3">
-          <h1 className="text-sm tracking-[0.5em] uppercase font-display font-light text-aman-cream">
+          <h1 className="text-sm tracking-[0.5em] uppercase font-display font-light text-aman-dark">
             Aman Style
           </h1>
-          <span className="text-[10px] tracking-wider text-aman-stone/40 uppercase">
+          <span className="text-[10px] tracking-wider text-aman-stone/60 uppercase">
             Video Editor
           </span>
         </div>
@@ -33,7 +33,7 @@ export default function Home() {
           {videoUrl && (
             <button
               onClick={reset}
-              className="text-[10px] tracking-wider uppercase text-aman-stone/40 hover:text-red-400/60 transition-colors"
+              className="text-[10px] tracking-wider uppercase text-aman-stone/60 hover:text-red-500/60 transition-colors"
             >
               Reset
             </button>
@@ -44,7 +44,7 @@ export default function Home() {
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Video preview area */}
-        <div className="flex-1 flex items-center justify-center p-6 bg-[#080807]">
+        <div className="flex-1 flex items-center justify-center p-6 bg-aman-linen">
           {videoUrl ? (
             <VideoCanvas />
           ) : (
@@ -54,17 +54,17 @@ export default function Home() {
 
         {/* Sidebar */}
         {videoUrl && (
-          <aside className="w-72 border-l border-white/5 flex flex-col overflow-hidden">
+          <aside className="w-72 border-l border-aman-clay/15 flex flex-col overflow-hidden bg-aman-cream">
             {/* Tabs */}
-            <div className="flex border-b border-white/5">
+            <div className="flex border-b border-aman-clay/15">
               {(["style", "text", "export"] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`flex-1 py-3 text-[10px] tracking-[0.25em] uppercase transition-all duration-300 ${
                     activeTab === tab
-                      ? "text-aman-cream border-b border-aman-gold/40"
-                      : "text-aman-stone/50 hover:text-aman-stone"
+                      ? "text-aman-dark border-b border-aman-gold"
+                      : "text-aman-stone/60 hover:text-aman-stone"
                   }`}
                 >
                   {tab}
@@ -80,8 +80,8 @@ export default function Home() {
             </div>
 
             {/* Footer info */}
-            <div className="px-4 py-3 border-t border-white/5">
-              <p className="text-[9px] text-aman-stone/30 tracking-wider uppercase text-center">
+            <div className="px-4 py-3 border-t border-aman-clay/15">
+              <p className="text-[9px] text-aman-stone/50 tracking-wider uppercase text-center">
                 Warm earth tones — Muted saturation — Meditative pace
               </p>
             </div>

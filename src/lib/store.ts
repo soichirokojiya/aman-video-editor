@@ -3,7 +3,24 @@ import { create } from "zustand";
 export type AspectRatio = "9:16" | "4:5" | "1:1";
 export type MediaType = "video" | "image";
 
-export type KenBurnsPreset = "zoom-in" | "zoom-out" | "pan-left" | "pan-right" | "pan-up" | "none";
+export type KenBurnsPreset =
+  | "zoom-in"
+  | "zoom-out"
+  | "pan-left"
+  | "pan-right"
+  | "pan-up"
+  | "pan-down"
+  | "drift-diagonal-tl"
+  | "drift-diagonal-tr"
+  | "drift-diagonal-bl"
+  | "drift-diagonal-br"
+  | "zoom-in-pan-left"
+  | "zoom-in-pan-right"
+  | "zoom-out-pan-up"
+  | "zoom-out-drift"
+  | "slow-push"
+  | "pull-reveal"
+  | "none";
 
 export interface TextOverlay {
   id: string;
@@ -79,6 +96,56 @@ export const AMAN_PRESETS: Record<string, FilterSettings> = {
     grain: 0.02,
     vignette: 0.15,
     speed: 0.75,
+  },
+  "Misty Landscape": {
+    warmth: 0.18,
+    contrast: 0.82,
+    saturation: 0.5,
+    shadowLift: 0.18,
+    brightness: 1.08,
+    grain: 0.03,
+    vignette: 0.1,
+    speed: 0.65,
+  },
+  "Sand & Clay": {
+    warmth: 0.55,
+    contrast: 0.9,
+    saturation: 0.6,
+    shadowLift: 0.1,
+    brightness: 1.03,
+    grain: 0.04,
+    vignette: 0.2,
+    speed: 0.75,
+  },
+  "Ocean Calm": {
+    warmth: 0.08,
+    contrast: 0.88,
+    saturation: 0.6,
+    shadowLift: 0.12,
+    brightness: 1.05,
+    grain: 0.02,
+    vignette: 0.18,
+    speed: 0.7,
+  },
+  "Candlelight": {
+    warmth: 0.6,
+    contrast: 0.85,
+    saturation: 0.55,
+    shadowLift: 0.2,
+    brightness: 0.95,
+    grain: 0.05,
+    vignette: 0.4,
+    speed: 0.6,
+  },
+  "Morning Mist": {
+    warmth: 0.25,
+    contrast: 0.78,
+    saturation: 0.45,
+    shadowLift: 0.22,
+    brightness: 1.1,
+    grain: 0.02,
+    vignette: 0.08,
+    speed: 0.7,
   },
 };
 

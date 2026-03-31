@@ -78,6 +78,55 @@ function getKenBurnsTransform(
       scale = 1.1;
       offsetY = (1 - ease) * (imgH - baseH * scale) * 0.3;
       break;
+    case "pan-down":
+      scale = 1.1;
+      offsetY = ease * (imgH - baseH * scale) * 0.3;
+      break;
+    case "drift-diagonal-tl":
+      scale = 1.12;
+      offsetX = (1 - ease) * (imgW - baseW * scale) * 0.25;
+      offsetY = (1 - ease) * (imgH - baseH * scale) * 0.25;
+      break;
+    case "drift-diagonal-tr":
+      scale = 1.12;
+      offsetX = ease * (imgW - baseW * scale) * 0.25;
+      offsetY = (1 - ease) * (imgH - baseH * scale) * 0.25;
+      break;
+    case "drift-diagonal-bl":
+      scale = 1.12;
+      offsetX = (1 - ease) * (imgW - baseW * scale) * 0.25;
+      offsetY = ease * (imgH - baseH * scale) * 0.25;
+      break;
+    case "drift-diagonal-br":
+      scale = 1.12;
+      offsetX = ease * (imgW - baseW * scale) * 0.25;
+      offsetY = ease * (imgH - baseH * scale) * 0.25;
+      break;
+    case "zoom-in-pan-left":
+      scale = 1.0 + ease * 0.18;
+      offsetX = (1 - ease) * (imgW - baseW * scale) * 0.2;
+      break;
+    case "zoom-in-pan-right":
+      scale = 1.0 + ease * 0.18;
+      offsetX = ease * (imgW - baseW * scale) * 0.2;
+      break;
+    case "zoom-out-pan-up":
+      scale = 1.2 - ease * 0.12;
+      offsetY = (1 - ease) * (imgH - baseH * scale) * 0.2;
+      break;
+    case "zoom-out-drift":
+      scale = 1.2 - ease * 0.1;
+      offsetX = ease * (imgW - baseW * scale) * 0.15;
+      offsetY = ease * (imgH - baseH * scale) * 0.1;
+      break;
+    case "slow-push":
+      // Very slow gentle zoom, cinematic feel
+      scale = 1.0 + ease * 0.08;
+      break;
+    case "pull-reveal":
+      // Start zoomed in, slowly reveal the full scene
+      scale = 1.25 - ease * 0.25;
+      break;
     case "none":
     default:
       scale = 1.0;

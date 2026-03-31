@@ -2,13 +2,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #f5f0eb;
+  --background: #f5f0eb;
+  --foreground: #2a2420;
   --aman-sand: #c4a882;
   --aman-gold: #b8956a;
   --aman-stone: #8a8075;
   --aman-dark: #1a1815;
   --aman-cream: #f5f0eb;
+  --aman-linen: #ece5dc;
+  --aman-warm-bg: #e8e0d5;
+  --aman-clay: #a89078;
 }
 
 @theme inline {
@@ -19,6 +22,9 @@
   --color-aman-stone: var(--aman-stone);
   --color-aman-dark: var(--aman-dark);
   --color-aman-cream: var(--aman-cream);
+  --color-aman-linen: var(--aman-linen);
+  --color-aman-warm-bg: var(--aman-warm-bg);
+  --color-aman-clay: var(--aman-clay);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: 'Cormorant Garamond', serif;
@@ -31,15 +37,21 @@ body {
   font-family: 'Josefin Sans', sans-serif;
 }
 
+/* Select dropdown styling for light theme */
+select option {
+  background: var(--aman-cream);
+  color: var(--foreground);
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--aman-dark);
+  background: var(--aman-linen);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--aman-stone);
+  background: var(--aman-clay);
   border-radius: 2px;
 }
 
@@ -52,7 +64,7 @@ input[type="range"] {
   width: 100%;
 }
 input[type="range"]::-webkit-slider-track {
-  background: #2a2520;
+  background: var(--aman-warm-bg);
   height: 2px;
   border-radius: 1px;
 }
@@ -64,5 +76,5 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 50%;
   background: var(--aman-gold);
   margin-top: -6px;
-  border: 2px solid var(--aman-dark);
+  border: 2px solid var(--aman-cream);
 }
